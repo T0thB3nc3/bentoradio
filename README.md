@@ -32,12 +32,12 @@
 ## 📁 Fájlstruktúra
 
 📦 root
-┣ 📄 index.js <- A bot teljes működését tartalmazza
-┣ 📄 .env <- Privát kulcsok (TOKEN, VOICE_CHANNEL_ID, GUILD_ID)
-┣ 📄 radios.json <- Felhasználó által hozzáadott rádióadók listája
-┣ 📄 last_radio.json <- Utoljára lejátszott rádió indexe
-┣ 📦 node_modules
-┣ 📄 package.json
+- ┣ 📄 index.js <- A bot teljes működését tartalmazza
+- ┣ 📄 .env <- Privát kulcsok (TOKEN, VOICE_CHANNEL_ID, GUILD_ID)
+- ┣ 📄 radios.json <- Felhasználó által hozzáadott rádióadók listája
+- ┣ 📄 last_radio.json <- Utoljára lejátszott rádió indexe
+- ┣ 📦 node_modules
+- ┣ 📄 package.json
 
 
 ---
