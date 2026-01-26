@@ -136,15 +136,20 @@ async function playRadio(index = 0, interaction = null) {
     ffmpegOptions.windowsHide = true; // Rejtsd el a konzolablakot Windows alatt
   }
 
-  ffmpeg = spawn(ffmpegStatic, [
+  const ffmpegArgs = [
+    '-re',
     '-i', radios[index].url,
     '-analyzeduration', '0',
-    '-loglevel', '0',
-    '-f', 's16le',
-    '-ar', '48000',
+    '-loglevel', 'error',
+    '-f', 's16le',  
+    '-ar', '48000', 
     '-ac', '2',
+    '-b:a', '96k',
+    '-bufsize', '2048k',
     'pipe:1'
-  ], ffmpegOptions);
+  ];
+
+  ffmpeg = spawn(ffmpegStatic,ffmpegArgs,ffmpegOptions);
 
   ffmpeg.stderr.on('data', (data) => {
     console.error(`FFmpeg hiba: ${data}`);
