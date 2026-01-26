@@ -127,6 +127,15 @@ async function playRadio(index = 0, interaction = null) {
   joined = true;
 
   if (ffmpeg) ffmpeg.kill('SIGKILL');
+
+  const ffmpegOptions = {
+    stdio: ['ignore', 'pipe', 'pipe']
+  };
+
+  if (process.platform === 'win32') {
+    ffmpegOptions.windowsHide = true; // Rejtsd el a konzolablakot Windows alatt
+  }
+
   ffmpeg = spawn(ffmpegStatic, [
     '-i', radios[index].url,
     '-analyzeduration', '0',
@@ -135,9 +144,10 @@ async function playRadio(index = 0, interaction = null) {
     '-ar', '48000',
     '-ac', '2',
     'pipe:1'
-  ],{
-      windowsHide: true,  // <--- ez rejti el a konzolablakot Windows alatt
-      stdio: ['ignore', 'pipe', 'pipe']
+  ], ffmpegOptions);
+
+  ffmpeg.stderr.on('data', (data) => {
+    console.error(`FFmpeg hiba: ${data}`);
   });
 
   player = createAudioPlayer();
