@@ -7,26 +7,13 @@ const fetch = (...args) => import('node-fetch').then(m => m.default(...args));
 const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, InteractionType, PermissionsBitField, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType, getVoiceConnection } = require('@discordjs/voice');
 const { spawn } = require('child_process');
-const ffmpegProc = 'ffmpeg';
+const ffmpegStatic = require('ffmpeg-static');
 
 const TOKEN = process.env.TOKEN;
 const VOICE_CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 const GUILD_ID = process.env.GUILD_ID;
 const RADIOS_FILE = './radios.json';
 const LAST_RADIO_FILE = './last_radio.json';
-
-try {
-    if (ffmpegProc) {
-        console.log(`[RENDSZER] FFMPEG útvonal: ${ffmpegProc}`);
-        // Csak Linux/Mac rendszereken kell, de nem árt
-        if (process.platform !== 'win32') {
-            console.log('[RENDSZER] Futtatási jogok (chmod +x) beállítása...');
-            fs.chmodSync(ffmpegProc, 0o755);
-        }
-    }
-} catch (err) {
-    console.error('[RENDSZER HIBA] Nem sikerült a chmod:', err);
-}
 
 function loadRadios() {
   try {
@@ -140,61 +127,26 @@ async function playRadio(index = 0, interaction = null) {
   joined = true;
 
   if (ffmpeg) ffmpeg.kill('SIGKILL');
-
-  console.log(`[LEJÁTSZÁS] Indítás: ${radios[index].url}`);
-
-  const ffmpegOptions = {
-    stdio: ['ignore', 'pipe', 'pipe']
-  };
-
-  if (process.platform === 'win32') {
-    ffmpegOptions.windowsHide = true; // Rejtsd el a konzolablakot Windows alatt
-  }
-
-  const ffmpegArgs = [
-    '-re',
-    '-headers', 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+  ffmpeg = spawn(ffmpegStatic, [
     '-i', radios[index].url,
     '-analyzeduration', '0',
-    '-loglevel', 'info',
-    '-f', 's16le',  
-    '-ar', '48000', 
+    '-loglevel', '0',
+    '-f', 's16le',
+    '-ar', '48000',
     '-ac', '2',
-    '-b:a', '96k',
-    '-bufsize', '2048k',
     'pipe:1'
-  ];
-
-  ffmpeg = spawn(ffmpegProc,ffmpegArgs,ffmpegOptions);
-
-  ffmpeg.on('error', (error) => {
-    console.error(`[FFMPEG HIBA]: ${error.message}`);
-  });
-  
-  ffmpeg.stderr.on('data', (data) => {
-    const msg = data.toString();
-    if (msg.includes('Error') || msg.includes('403 Forbidden') || msg.includes('Exiting')) {
-        console.error(`[FFMPEG ERROR]: ${msg}`);
-    }
+  ],{
+      windowsHide: true,  // <--- ez rejti el a konzolablakot Windows alatt
+      stdio: ['ignore', 'pipe', 'pipe']
   });
 
-  ffmpeg.on('close', (code) => {
-    console.log(`[FFMPEG] Kilépett. Kód: ${code}`);
-  });
-
-  player = createAudioPlayer({
-    behaviors: {
-      noSubscriber: 'play',
-    }
-  });
+  player = createAudioPlayer();
   const resource = createAudioResource(ffmpeg.stdout, { inputType: StreamType.Raw });
   player.play(resource);
   connection.subscribe(player);
 
   player.on(AudioPlayerStatus.Idle, () => {
-    setTimeout(() => {
-      if (joined) playRadio(currentRadioIndex);
-    }, 1000);
+    playRadio(currentRadioIndex);
   });
 
   player.on('error', error => {
