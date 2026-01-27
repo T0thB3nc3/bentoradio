@@ -7,7 +7,7 @@ const fetch = (...args) => import('node-fetch').then(m => m.default(...args));
 const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, InteractionType, PermissionsBitField, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, StreamType, getVoiceConnection } = require('@discordjs/voice');
 const { spawn } = require('child_process');
-const ffmpegStatic = require('ffmpeg-static');
+const ffmpegProc = 'ffmpeg';
 
 const TOKEN = process.env.TOKEN;
 const VOICE_CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
@@ -16,12 +16,12 @@ const RADIOS_FILE = './radios.json';
 const LAST_RADIO_FILE = './last_radio.json';
 
 try {
-    if (ffmpegStatic) {
-        console.log(`[RENDSZER] FFMPEG útvonal: ${ffmpegStatic}`);
+    if (ffmpegProc) {
+        console.log(`[RENDSZER] FFMPEG útvonal: ${ffmpegProc}`);
         // Csak Linux/Mac rendszereken kell, de nem árt
         if (process.platform !== 'win32') {
             console.log('[RENDSZER] Futtatási jogok (chmod +x) beállítása...');
-            fs.chmodSync(ffmpegStatic, 0o755);
+            fs.chmodSync(ffmpegProc, 0o755);
         }
     }
 } catch (err) {
@@ -165,7 +165,7 @@ async function playRadio(index = 0, interaction = null) {
     'pipe:1'
   ];
 
-  ffmpeg = spawn(ffmpegStatic,ffmpegArgs,ffmpegOptions);
+  ffmpeg = spawn(ffmpegProc,ffmpegArgs,ffmpegOptions);
 
   ffmpeg.on('error', (error) => {
     console.error(`[FFMPEG HIBA]: ${error.message}`);
@@ -192,7 +192,9 @@ async function playRadio(index = 0, interaction = null) {
   connection.subscribe(player);
 
   player.on(AudioPlayerStatus.Idle, () => {
-    playRadio(currentRadioIndex);
+    setTimeout(() => {
+      if (joined) playRadio(currentRadioIndex);
+    }, 1000);
   });
 
   player.on('error', error => {
