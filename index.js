@@ -140,7 +140,7 @@ async function playRadio(index = 0, interaction = null) {
     '-re',
     '-i', radios[index].url,
     '-analyzeduration', '0',
-    '-loglevel', 'error',
+    '-loglevel', 'info',
     '-f', 's16le',  
     '-ar', '48000', 
     '-ac', '2',
@@ -152,10 +152,21 @@ async function playRadio(index = 0, interaction = null) {
   ffmpeg = spawn(ffmpegStatic,ffmpegArgs,ffmpegOptions);
 
   ffmpeg.stderr.on('data', (data) => {
-    console.error(`FFmpeg hiba: ${data}`);
+    const msg = data.toString();
+    if (msg.includes('Error') || msg.includes('403 Forbidden') || msg.includes('Exiting')) {
+        console.error(`[FFMPEG ERROR]: ${msg}`);
+    }
   });
 
-  player = createAudioPlayer();
+  ffmpeg.on('close', (code) => {
+    console.log(`[FFMPEG] Kilépett. Kód: ${code}`);
+  });
+
+  player = createAudioPlayer({
+    behaviors: {
+      noSubscriber: 'play',
+    }
+  });
   const resource = createAudioResource(ffmpeg.stdout, { inputType: StreamType.Raw });
   player.play(resource);
   connection.subscribe(player);
