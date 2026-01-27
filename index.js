@@ -15,6 +15,19 @@ const GUILD_ID = process.env.GUILD_ID;
 const RADIOS_FILE = './radios.json';
 const LAST_RADIO_FILE = './last_radio.json';
 
+try {
+    if (ffmpegStatic) {
+        console.log(`[RENDSZER] FFMPEG útvonal: ${ffmpegStatic}`);
+        // Csak Linux/Mac rendszereken kell, de nem árt
+        if (process.platform !== 'win32') {
+            console.log('[RENDSZER] Futtatási jogok (chmod +x) beállítása...');
+            fs.chmodSync(ffmpegStatic, 0o755);
+        }
+    }
+} catch (err) {
+    console.error('[RENDSZER HIBA] Nem sikerült a chmod:', err);
+}
+
 function loadRadios() {
   try {
     const data = fs.readFileSync(RADIOS_FILE, 'utf8');
@@ -128,6 +141,8 @@ async function playRadio(index = 0, interaction = null) {
 
   if (ffmpeg) ffmpeg.kill('SIGKILL');
 
+  console.log(`[LEJÁTSZÁS] Indítás: ${radios[index].url}`);
+
   const ffmpegOptions = {
     stdio: ['ignore', 'pipe', 'pipe']
   };
@@ -138,6 +153,7 @@ async function playRadio(index = 0, interaction = null) {
 
   const ffmpegArgs = [
     '-re',
+    '-headers', 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     '-i', radios[index].url,
     '-analyzeduration', '0',
     '-loglevel', 'info',
@@ -151,6 +167,10 @@ async function playRadio(index = 0, interaction = null) {
 
   ffmpeg = spawn(ffmpegStatic,ffmpegArgs,ffmpegOptions);
 
+  ffmpeg.on('error', (error) => {
+    console.error(`[FFMPEG HIBA]: ${error.message}`);
+  });
+  
   ffmpeg.stderr.on('data', (data) => {
     const msg = data.toString();
     if (msg.includes('Error') || msg.includes('403 Forbidden') || msg.includes('Exiting')) {
