@@ -1,128 +1,80 @@
-# 📻 Bento Radio – Discord Rádió Bot
+# 📻 Bento Radio – Discord Rádió & YouTube Bot
 
-**Bento Radio** egy fejlett, interaktív Discord bot, amely képes online rádióállomások streamelésére egy voice csatornában. Slash parancsokkal vezérelhető, gombos kezelőfelülettel, és JSON-alapú rádiókezeléssel működik.
+**Bento Radio** egy modern, nagy teljesítményű Discord bot, amely online rádióállomások és YouTube videók hanganyagának streamelésére alkalmas. A bot a legfrissebb technológiákat használja a stabil és kristálytiszta hangzás érdekében.
+
+---
+
+## 🚀 Újdonságok a v2.0-ban
+* **Modern Audio Engine:** Átállás `prism-media` alapú FFmpeg dekódolásra (nincs szükség natív C++ fordítóra).
+* **YouTube Támogatás:** Közvetlen lejátszás YouTube linkekről a `/play` paranccsal.
+* **Dinamikus Csatorna Státusz:** A bot automatikusan frissíti a hangcsatorna állapotát (Voice Status) a játszott adó nevére.
+* **Node.js v24+ Kompatibilitás:** Teljes támogatás a legújabb futtatókörnyezetekhez.
 
 ---
 
 ## ⚙️ Előkészületek
 
-1. **Node.js** telepítése (ajánlott: `18.x` vagy újabb)
-2. `.env` fájl létrehozása a következő tartalommal:
-
+1. **Node.js** telepítése (ajánlott: `22.12.0` vagy újabb).
+2. **FFmpeg** megléte (a bot az `ffmpeg-static` csomagot használja, így külön telepítést nem igényel).
+3. `.env` fájl konfigurálása:
     ```env
     TOKEN=your-bot-token
-    GUILD_ID=your-guild-id
-    VOICE_CHANNEL_ID=your-voice-channel-id
     ```
 
-3. Függőségek telepítése:
-
+4. Függőségek telepítése:
     ```bash
-    npm install discord.js @discordjs/voice ffmpeg-static dotenv
+    npm install
     ```
 
-4. Bot indítása:
-
+5. Bot indítása (fejlesztői mód):
     ```bash
     node index.js
     ```
+   *(Éles üzemben ajánlott a **PM2** használata: `pm2 start index.js --name bento_radio`)*
 
 ---
 
-## 📁 Fájlstruktúra
+## 🧠 Parancsok (Slash Commands)
 
-📦 root
-- ┣ 📄 index.js <- A bot teljes működését tartalmazza
-- ┣ 📄 .env <- Privát kulcsok (TOKEN, VOICE_CHANNEL_ID, GUILD_ID)
-- ┣ 📄 radios.json <- Felhasználó által hozzáadott rádióadók listája
-- ┣ 📄 last_radio.json <- Utoljára lejátszott rádió indexe
-- ┣ 📦 node_modules
-- ┣ 📄 package.json
+### 🎧 Általános parancsok
+* `/join` – Csatlakozás a hangcsatornádhoz és az utolsó adó indítása.
+* `/play <url>` – YouTube videó hangjának lejátszása.
+* `/switch <név>` – Átváltás a listában szereplő rádióadók egyikére.
+* `/list-channel` – Az összes mentett rádióadó böngészése interaktív gombokkal.
+* `/leave` – Kilépés a csatornából és a lejátszás leállítása.
+* `/help` – Segítség és parancslista.
 
-
----
-
-## 🔑 .env változók
-
-| Változó | Leírás |
-|--------|--------|
-| `TOKEN` | A bot Discord tokenje |
-| `VOICE_CHANNEL_ID` | Voice csatorna ID, ahová a bot csatlakozik |
-| `GUILD_ID` | Szerver ID, ahol a parancsok regisztrálódnak |
+### 🛠️ Adminisztrátor parancsok
+* `/add-channel <név> <link>` – Új rádióadó végleges hozzáadása a listához.
+* `/set-channel <név> <új_link>` – Meglévő adó URL címének módosítása.
+* `/delete-channel <név>` – Adó törlése a listából.
+* `/info <név>` – Egy adott adó stream linkjének lekérése.
 
 ---
 
-## 🧠 Funkciók
+## 📁 Technikai Felépítés
 
-### 🎧 `/join`
-- Belépteti a botot a voice csatornába
-- Lejátssza az utoljára kiválasztott rádió streamet
-
-### 🎚️ `/switch <név>`
-- Átvált a megadott rádióadóra
-- Frissíti a bot „activity” állapotát
-
-### ➕ `/add-channel <név> <link>`
-- Új rádiócsatorna hozzáadása
-- Csak adminisztrátorok számára elérhető
-- Ellenőrzi, hogy a stream URL érvényes-e
-
-### 🧾 `/list-channel`
-- Elérhető rádióadók listázása lapozható, gombos felülettel
-- A jelenlegi rádió zöld gombbal kiemelve
-
-### 🗑️ `/delete-channel <név>`
-- Megadott nevű rádiót törli
-- Csak adminisztrátorok számára elérhető
-
-### 🛠️ `/set-channel <név> <új_link>`
-- Rádió stream link módosítása megerősítéssel
-- Csak adminisztrátorok számára elérhető
-
-### ℹ️ `/info <név>`
-- Lekérdezi egy rádió stream URL-jét
-
-### 🛑 `/leave`
-- Kilépteti a botot a voice csatornából
-
-### ❓ `/help`
-- Parancslista és rövid magyarázat
+* **Runtime:** Node.js v24+
+* **Library:** Discord.js v14.25+
+* **Voice:** `@discordjs/voice` + `prism-media` (FFmpeg adapter)
+* **Decoder:** `opusscript` (Szoftveres Opus kódolás)
+* **Persistence:** JSON alapú adattárolás (`radios.json`, `last_radio.json`)
 
 ---
 
-## 🔊 Lejátszás
-
-- A bot `ffmpeg-static` segítségével alakítja át a rádió streamet PCM formátumra
-- `createAudioPlayer` + `createAudioResource` segítségével játszik le
-- Hanghiba esetén újraindul
+## 🛡️ Jogosultságok (Permissions)
+A bot zavartalan működéséhez a következő jogosultságok szükségesek a szerveren:
+* `Connect` & `Speak` (Csatlakozás és Beszéd).
+* **`Set Voice Channel Status`** (Hangcsatorna-állapot beállítása).
+* `Use Slash Commands` (Alkalmazásparancsok használata).
 
 ---
 
-## 💾 Adatfájlok
-
-### `radios.json`
+## 💾 Adatstruktúra (radios.json)
 ```json
 [
   {
-    "name": "Example FM",
-    "url": "http://example.com/stream"
+    "name": "TruckersFM",
+    "url": "[https://live.truckers.fm/](https://live.truckers.fm/)"
   }
 ]
-```
-## 📈 Technikai adatok
-
-- Node.js alapú projekt
-
-- Használt csomagok: discord.js, @discordjs/voice, ffmpeg-static, dotenv
-
-- Parancsok: SlashCommandBuilder + gombos interakciók
-
-- Admin-only parancsok külön jogosultsággal (PermissionsBitField.Flags.Administrator)
-
-- Hang stream kezelés: FFmpeg, Pipe, Discord voice adapter
-
-## 🛡️ Megjegyzés
-Ez a bot csak jogtiszta, nyilvánosan elérhető rádió stream linkekkel használható. Kérlek, **ne használd** szerzői jogokat sértő stream URL-ekkel!
-
-Készítette: Tóth Bence, Programtervező informatikus hallgató
-
