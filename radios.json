@@ -4,8 +4,8 @@
     "url": "https://radio.truckers.fm/"
   },
   {
-    "name": "House Heads UK",
-    "url": "http://s36.myradiostream.com:13028/;listen.mp3"
+    "name": "DNBRadio - 24-7 Live Stream",
+    "url": "https://azura.drmnbss.org:8000/radio.mp3"
   },
   {
     "name": "181.FM - Highway 181",
@@ -13,7 +13,7 @@
   },
   {
     "name": "Radio Ibiza",
-    "url": "https://streams.radio.co/sdc9cfaf77/listen"
+    "url": "https://streaming.broadcast.radio/ibiza-live-radio"
   },
   {
     "name": "Rádió 1",
@@ -24,11 +24,35 @@
     "url": "https://icast.connectmedia.hu/4736/mr1.mp3"
   },
   {
+    "name": "MR2 Petőfi",
+    "url": "https://icast.connectmedia.hu/4738/mr2.mp3"
+  },
+  {
     "name": "Retro Rádió",
     "url": "https://icast.connectmedia.hu/5002/live.mp3"
   },
   {
-    "name": "MR2 Petőfi",
-    "url": "https://icast.connectmedia.hu/4738/mr2.mp3"
+    "name": "Mood's Radio",
+    "url":"http://eu10.fastcast4u.com:6380/stream"
+  },
+  {
+    "name": "SomaFM Drone Zone",
+    "url": "http://ice1.somafm.com/dronezone-128-mp3"
+  },
+  {
+    "name": "FIP — Eclectic Music",
+    "url": "https://icecast.radiofrance.fr/fip-hifi.aac"
+  },
+  {
+    "name": "Vermont Public - Classic",
+    "url": "https://vprclassical.streamguys1.com/vprclassical64.mp3"
+  },
+  {
+    "name": "Vermont Public - Jazz",
+    "url": "https://vprjazz.streamguys1.com/vprjazz64.aac"
+  },
+  {
+    "name": "Classic FM",
+    "url": "http://media-ice.musicradio.com/ClassicFM"
   }
 ]
