@@ -1,6 +1,6 @@
 {
   "name": "bento_radio",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,14 +9,17 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Multi-guild Discord Radio Bot",
   "dependencies": {
-    "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.18.0",
-    "discord.js": "^14.21.0",
-    "dotenv": "^16.6.1",
+    "@distube/ytdl-core": "^4.16.12",
+    "discord.js": "^14.17.3",
+    "dotenv": "^16.4.7",
     "ffmpeg-static": "^5.2.0",
+    "libsodium-wrappers": "^0.7.16",
     "node-fetch": "^3.3.2",
-    "opusscript": "^0.0.8"
+    "opusscript": "^0.0.8",
+    "prism-media": "^1.3.5",
+    "ytdl-core": "^4.11.5"
   }
 }
